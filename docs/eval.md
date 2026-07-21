@@ -30,6 +30,15 @@ recipe used to train and save the checkpoint is the one that loads it:
    is evaluated once and reported only as a diagnostic reference — your reward is
    NOT baseline-subtracted.
 
+## Recipe-local evaluation controls
+
+The fixed benchmark protocol above is the default. A recipe may commit an
+optional plain-text file at `recipes/<name>/eval.args` to align chat-template,
+few-shot rendering, or thinking arguments with the checkpoint it trained.
+When the file is absent, the judge runs the command above unchanged. The judge
+rejects benchmark, metric, limit, model-path, resource, and remote-code
+overrides; the file is parsed as arguments rather than shell code.
+
 ## Evaluation environment (this affects your deps)
 
 Because eval runs from **your** environment, your `pyproject.toml` must resolve

@@ -2,20 +2,22 @@
 
 ## In one line
 
-The base model is **Qwen2.5-1.5B-Instruct**, served read-only at `$MODEL_PATH`.
+The base model is **Qwen2.5-1.5B Base**, served read-only at `$MODEL_PATH`.
 You post-train *from* it; you never modify it in place.
 
 ## Facts
 
-- **Model**: `Qwen/Qwen2.5-1.5B-Instruct`
+- **Model**: `Qwen/Qwen2.5-1.5B` (Base)
 - **Size**: 1.5B parameters
 - **Precision**: load in `bfloat16` for training and evaluation
 - **Location**: `$MODEL_PATH` (read-only mount) — load with
   `AutoModelForCausalLM.from_pretrained(os.environ["MODEL_PATH"], torch_dtype=torch.bfloat16)`
 - **Tokenizer**: ships with the model at the same path;
   `trust_remote_code=True` is used by the evaluator
-- **Chat template**: it's an Instruct model, so it has a chat template — respect
-  it when formatting training data and when generating.
+- **Chat template**: this is a Base checkpoint; do not assume an Instruct chat
+  template. If a recipe adds a tokenizer or custom Jinja template, save the
+  complete tokenizer with the output checkpoint and opt into it through the
+  recipe's `eval.args`.
 
 ## Working with it
 
