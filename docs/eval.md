@@ -21,8 +21,8 @@ recipe used to train and save the checkpoint is the one that loads it:
    uv run --project <your repo> --with "lm-eval[hf]==0.4.12" -- \
      lm_eval run --model hf \
        --model_args pretrained=$OUTPUT_DIR,dtype=bfloat16,trust_remote_code=True \
-       --tasks humaneval --limit 164 \
-       --confirm_run_unsafe_code
+       --tasks humaneval --limit 164 --num_fewshot 0 --batch_size 32 \
+       --confirm_run_unsafe_code --verbosity INFO
    ```
 
 4. Reads the `pass@1,create_test` metric
@@ -55,7 +55,8 @@ cd /workspace/posttrainrepo
 uv run --with "lm-eval[hf]==0.4.12" -- \
   lm_eval run --model hf \
     --model_args pretrained=$OUTPUT_DIR,dtype=bfloat16,trust_remote_code=True \
-    --tasks humaneval --limit 2 --confirm_run_unsafe_code
+    --tasks humaneval --limit 2 --num_fewshot 0 --batch_size 32 \
+    --confirm_run_unsafe_code --verbosity INFO
 # Can't resolve or errors? Your deps conflict with the eval stack — loosen the
 # offending pin in pyproject.toml before submitting.
 ```
