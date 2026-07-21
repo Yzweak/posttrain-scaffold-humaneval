@@ -1,7 +1,7 @@
 # How to add a recipe
 
-1. Create a directory under `recipes/` (use a meaningful name, not a cycle
-   number):
+1. Create or improve a directory under `recipes/` (use a meaningful name, not a
+   cycle number):
    ```
    recipes/grpo_exec_reward/
      run.sh
@@ -9,6 +9,8 @@
    ```
 
 2. `run.sh` must satisfy the [contract in the README](../README.md#runsh-contract).
+   The same recipe directory may be submitted again after an improvement; each
+   committed snapshot is evaluated independently.
 
 3. `README.md` is the experiment record — write it in enough detail that someone
    with only this repo could re-run your recipe and land within eval noise of the

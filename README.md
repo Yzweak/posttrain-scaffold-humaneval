@@ -1,8 +1,8 @@
 # posttrainrepo
 
-Post-training experiment repository. Your goal: modify this repo so that
-`bash recipes/<your-recipe>/run.sh` trains a model that scores higher on the
-hidden code-generation benchmark.
+Post-training experiment repository for HumanEval. Your goal: modify this repo
+so that `bash recipes/<your-recipe>/run.sh` trains a model that scores higher
+on the code-generation benchmark.
 
 ## Layout
 
@@ -10,10 +10,12 @@ hidden code-generation benchmark.
 src/          shared modules (data loaders, reward functions, merge utils, ...)
 docs/         repo docs (architecture, evaluation, base model)
 cookbook/     runnable snippets and gotchas
-recipes/      one self-contained snapshot per experiment (append, never overwrite)
-  <name>/
+recipes/      one self-contained recipe per experiment; recipes may be iterated
+              in place and each submitted commit is evaluated independently
+  <name>/     `<name>` is the recipe directory and submit argument
     run.sh    one-click script: build env → train → produce checkpoint
     README.md method, hyperparameters, results, score
+    eval.args optional recipe-local evaluation controls
 ```
 
 ## How to use it
@@ -21,9 +23,12 @@ recipes/      one self-contained snapshot per experiment (append, never overwrit
 1. Read `program.md` for the research direction to pursue
 2. Read `docs/` for the evaluation mechanism and base model
 3. Browse `recipes/` for prior experiments (if any)
-4. Create a new directory under `recipes/` for your experiment
-5. Write `run.sh` (must satisfy the contract below) + `README.md`
+4. Create or improve a recipe directory under `recipes/`
+5. Write or update `run.sh` (must satisfy the contract below) + `README.md`
 6. Add or reuse shared modules in `src/` as needed
+
+Commit each candidate before submitting it. A later submission may improve the
+same recipe directory; Git commits preserve the earlier candidates.
 
 ## run.sh contract
 

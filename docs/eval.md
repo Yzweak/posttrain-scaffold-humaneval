@@ -35,6 +35,9 @@ recipe used to train and save the checkpoint is the one that loads it:
 The fixed benchmark protocol above is the default. A recipe may commit an
 optional plain-text file at `recipes/<name>/eval.args` to align chat-template,
 few-shot rendering, or thinking arguments with the checkpoint it trained.
+Here `<name>` is the recipe directory and the argument passed to
+`/workspace/submit.sh`; a named chat template in `eval.args` is a separate
+tokenizer-level name.
 When the file is absent, the judge runs the command above unchanged. The judge
 rejects benchmark, metric, limit, model-path, resource, and remote-code
 overrides; the file is parsed as arguments rather than shell code.
