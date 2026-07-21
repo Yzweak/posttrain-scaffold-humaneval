@@ -36,7 +36,8 @@ MODEL_PATH=<base weights> OUTPUT_DIR=<output dir> bash recipes/<name>/run.sh
 - **Exit code**: 0 on success, non-zero on failure
 - **Output**: `$OUTPUT_DIR/` must load directly with
   `AutoModelForCausalLM.from_pretrained()`
-- **Time**: complete within 1 hour
+- **Time**: finish within the recipe timeout in
+  `/workspace/task/rules/resources.md`
 
 ## Principles
 

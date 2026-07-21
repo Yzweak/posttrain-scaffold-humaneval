@@ -3,19 +3,19 @@
 ## In one line
 
 The judge scores your checkpoint with lm-eval's **HumanEval** task, metric
-**pass@1**, over all **164 problems**. Your score is the improvement over the
-untrained base model.
+**pass@1**, over all **164 problems**. Your reward is the checkpoint's absolute
+pass@1; the calibrated base-model score is diagnostic only.
 
 ## How the judge evaluates
 
-After you run `bash submit.sh <recipe>`, the judge, in the background:
+After you run `bash /workspace/submit.sh <recipe>`, the judge, in the background:
 
-1. `git clone`s your repo (committed files only) and runs
+1. snapshots the exact submitted commit into a clean local repo and runs
    `recipes/<recipe>/run.sh` from a clean copy
 2. run.sh must leave a checkpoint in `$OUTPUT_DIR` loadable by `from_pretrained()`
 3. Evaluates that checkpoint with lm-eval, **run inside your recipe's own `uv`
    environment** (with a pinned lm-eval overlaid), so the exact transformers your
-   recipe used to train and save the checkpoint is the one that loads it:
+recipe used to train and save the checkpoint is the one that loads it:
 
    ```bash
    uv run --project <your repo> --with "lm-eval[hf]==0.4.12" -- \
@@ -34,10 +34,9 @@ After you run `bash submit.sh <recipe>`, the judge, in the background:
 
 Because eval runs from **your** environment, your `pyproject.toml` must resolve
 together with `lm-eval[hf]==0.4.12`. lm-eval only needs `transformers>=4.1` (no
-upper bound), so it won't fight your transformers — but a hard pin on
-`transformers`/`datasets`/`numpy` that conflicts with lm-eval will stop the
-recipe-env eval (the judge then falls back to the system lm-eval and may hit a
-transformers-version mismatch on your saved tokenizer). Keep deps compatible.
+upper bound), so it usually won't fight your transformers. A conflicting hard
+pin on `transformers`, `datasets`, or `numpy` fails the submission; there is no
+second evaluation environment. Keep dependencies compatible.
 
 **Self-check before submitting** (fast, `--limit 2`) — run exactly what the judge
 runs and confirm it scores:
@@ -66,10 +65,10 @@ uv run --with "lm-eval[hf]==0.4.12" -- \
 
 ## Submission is asynchronous
 
-`submit.sh` returns a `job_id` immediately; evaluation runs in the background
-(~30–60 min). Poll with `check.sh <job_id>` — it returns at once, so if it says
-`running`, do other work and check again later. Do not block on `check.sh`, and
-do not background `submit.sh` with `&`.
+`/workspace/submit.sh` returns a `job_id` immediately; evaluation runs in the
+background. Poll with `/workspace/check.sh <job_id>` — it returns at once, so
+if it says `running`, do other work and check again later. Do not block on
+`check.sh`, and do not background `submit.sh` with `&`.
 
 ## Benchmark data must not enter training
 

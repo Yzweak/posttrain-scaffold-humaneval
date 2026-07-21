@@ -30,5 +30,6 @@ You post-train *from* it; you never modify it in place.
 ## Fits on one A100-80GB
 
 1.5B in bf16 is small; full fine-tuning, LoRA, or RL (GRPO/PPO) all fit
-comfortably on a single A100-80GB within the 1-hour run.sh budget. Prefer mature
-libraries (TRL, veRL, OpenRLHF) over hand-rolled training loops.
+comfortably on a single A100-80GB. The active recipe timeout is published in
+`/workspace/task/rules/resources.md`. Prefer mature libraries (TRL, veRL,
+OpenRLHF) over hand-rolled training loops.
