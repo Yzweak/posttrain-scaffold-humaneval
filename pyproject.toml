@@ -2,7 +2,16 @@
 name = "posttrainrepo"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "accelerate>=1.6,<2",
+    "datasets>=3.6,<5",
+    "numpy<3",
+    "peft>=0.15,<0.20",
+    "sympy>=1.13",
+    "torch>=2.5,<3",
+    "transformers>=4.51,<5",
+    "trl>=0.17,<0.25",
+]
 
 # Dev-only tooling (lint in CI). Kept out of [project.dependencies] so the
 # agent's training environment stays clean — declare training deps with `uv add`.
