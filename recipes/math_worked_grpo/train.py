@@ -2,6 +2,7 @@ import argparse
 import gc
 import os
 import random
+import re
 import shutil
 import sys
 from dataclasses import dataclass
@@ -58,20 +59,36 @@ def prepare_grpo_dataset(rows: list[dict[str, str]], max_examples: int) -> Datas
     return Dataset.from_list(examples).shuffle(seed=SEED + 1)
 
 
+def extract_contract_answer(completion: str) -> str | None:
+    match = re.search(
+        r"Final Answer:\s*The final answer is\s*(.+?)\.\s*I hope it is correct\.",
+        completion,
+        flags=re.DOTALL,
+    )
+    if match:
+        return normalize_answer(match.group(1))
+    return None
+
+
 def math_reward(completions: list[str], answer: list[str], **_kwargs: object) -> list[float]:
     rewards: list[float] = []
     for completion, target in zip(completions, answer, strict=True):
-        extracted = extract_final_sentence_answer(completion)
+        contract_answer = extract_contract_answer(completion)
+        extracted = contract_answer or extract_final_sentence_answer(completion)
         reward = 0.0
-        if answers_match(extracted, target):
-            reward += 1.0
-        if "Final Answer: The final answer is" in completion and "I hope it is correct." in completion:
+        if answers_match(contract_answer, target):
+            reward += 0.88
+        elif answers_match(extracted, target):
+            reward += 0.45
+
+        has_contract = contract_answer is not None
+        if has_contract:
             reward += 0.08
         if completion.count("Final Answer:") == 1:
             reward += 0.04
-        if len(completion.split()) >= 24:
+        if has_contract and 24 <= len(completion.split()) <= 220:
             reward += 0.03
-        rewards.append(reward)
+        rewards.append(min(reward, 1.0))
     return rewards
 
 

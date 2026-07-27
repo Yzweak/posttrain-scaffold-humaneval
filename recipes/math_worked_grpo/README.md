@@ -22,6 +22,7 @@ Declared in `pyproject.toml`: `trl>=0.17,<0.25`, `transformers>=4.51,<5`, `peft>
 - SFT learning rate: `2e-4`, cosine scheduler, warmup ratio `0.03`, weight decay `0.01`
 - GRPO steps: `36`, prompt length `768`, completion length `384`
 - GRPO learning rate: `5e-6`, cosine scheduler, warmup ratio `0.05`, `beta=0.02`, `num_generations=4`, `temperature=0.9`, `top_p=0.95`, `repetition_penalty=1.05`, `loss_type=dr_grpo`
+- GRPO reward: `+0.88` for a correct answer in the exact evaluator-visible final sentence, `+0.45` for a correct answer extractable only from a fallback pattern, plus small format/length shaping capped at `1.0`
 - Per-device GRPO completion batch size: `4`; gradient accumulation: `8`; effective GRPO prompt batch size: `8`
 - Precision: `bfloat16`
 - LoRA: rank `32`, alpha `64`, dropout `0.05`, target modules `q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj`
@@ -62,13 +63,13 @@ The reward extracts answers from completions ending in:
 Final Answer: The final answer is <answer>. I hope it is correct.
 ```
 
-Correct extracted answers receive `+1.0`; the exact final-answer contract, a single final-answer sentence, and a minimal worked-solution length receive small shaping rewards totaling at most `+0.15`. No chat template is added, so canonical evaluation defaults should be used.
+Correct answers in the exact final-answer contract receive the dominant reward. A correct answer found only through a fallback extractor receives partial credit, so GRPO can still learn from mathematically useful generations that have not yet landed the evaluator-visible suffix. The exact final-answer contract, a single final-answer sentence, and a bounded worked-solution length receive small shaping rewards; total reward is capped at `1.0`. No chat template is added, so canonical evaluation defaults should be used.
 
 ## Results
 
-Attempt 1 (`3f7ac228-39de-4026-ae25-a48c9432d876`): timed out at 2400.134 seconds with the original `5000` SFT examples, `0.85` SFT epochs, and `110` GRPO steps. Current candidate: pending. Judge metric is MATH-500 `exact_match,none` under lm-eval `0.4.12` with four-shot Minerva prompting. Record job id and score after `/workspace/check.sh` returns.
+Attempt 1 (`3f7ac228-39de-4026-ae25-a48c9432d876`): timed out at 2400.134 seconds with the original `5000` SFT examples, `0.85` SFT epochs, and `110` GRPO steps. Current candidate tightens the GRPO reward around the exact evaluator-visible final sentence while preserving fallback partial credit. Judge metric is MATH-500 `exact_match,none` under lm-eval `0.4.12` with four-shot Minerva prompting. Record job id and score after `/workspace/check.sh` returns.
 
 ## What Mattered / What Failed
 
 - The recipe keeps the strong in-domain worked-solution prior from `math_worked_sft` but adds on-policy pressure for landing on the verifier-visible final answer.
-- The GRPO reward is correctness-dominant so the model is not trained to emit only the final suffix; format rewards are intentionally small.
+- The revised GRPO reward separates exact-contract correctness from fallback answer extraction, avoiding a full reward for answers that would be harder for the Minerva extractor to score.
